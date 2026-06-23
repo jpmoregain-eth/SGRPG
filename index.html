@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGRPG - Singapore RPG Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+        .title {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        .story-text {
+            line-height: 1.8;
+            margin-bottom: 20px;
+            min-height: 150px;
+            white-space: pre-wrap;
+        }
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .choice-btn {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #00ff00;
+            padding: 15px 20px;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        .choice-btn:hover {
+            background: #222;
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #1a1a1a;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .stat-label { color: #666; }
+        .stat-value { color: #00ff00; font-weight: bold; }
+        .inventory {
+            margin-top: 20px;
+            padding: 10px;
+            background: #1a1a1a;
+            border-radius: 5px;
+            font-size: 0.85em;
+        }
+        .inventory-title { color: #666; margin-bottom: 5px; }
+        .inventory-items { color: #888; }
+        .typing { border-right: 2px solid #00ff00; animation: blink 1s infinite; }
+        @keyframes blink { 50% { border-color: transparent; } }
+        .game-over {
+            text-align: center;
+            color: #ff4444;
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+        .restart-btn {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1em;
+            font-family: inherit;
+            cursor: pointer;
+            border-radius: 5px;
+            display: block;
+            margin: 20px auto;
+        }
+        .restart-btn:hover { background: #00cc00; }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="title">⚔️ SGRPG</div>
+        <div class="subtitle">Singapore RPG - Linear Demo</div>
+        
+        <div class="stats" id="stats">
+            <div class="stat"><span class="stat-label">HP:</span> <span class="stat-value" id="hp">100</span></div>
+            <div class="stat"><span class="stat-label">Gold:</span> <span class="stat-value" id="gold">0</span></div>
+            <div class="stat"><span class="stat-label">Location:</span> <span class="stat-value" id="location">Changi Village</span></div>
+        </div>
+        
+        <div class="story-text" id="story"></div>
+        
+        <div class="choices" id="choices"></div>
+        
+        <div class="inventory" id="inventory">
+            <div class="inventory-title">🎒 Inventory</div>
+            <div class="inventory-items" id="inventory-items">Empty</div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let state = {
+            hp: 100,
+            maxHp: 100,
+            gold: 10,
+            location: 'Changi Village',
+            inventory: ['Rusty Dagger'],
+            flags: {}
+        };
+
+        // Story Scenes
+        const scenes = {
+            start: {
+                text: `You awaken in Changi Village, the easternmost tip of Singapore. The morning humidity already presses against your skin. Fishermen prepare their boats at the nearby jetty, and the smell of kaya toast drifts from a nearby coffeeshop.
+
+A weathered old man approaches you. "You're the newcomer, eh? Word travels fast in these parts. The Merlion's Tear has been stolen from Marina Bay. Without it, the island's luck will run dry."
+
+He leans closer. "I can point you to the MRT, but first — do you have what it takes to survive Singapore?"`,
+                choices: [
+                    { text: '"I'm ready. Where do I start?"', next: 'village_explore' },
+                    { text: '"Tell me more about this Merlion\'s Tear."', next: 'merlion_lore' },
+                    { text: '"I need equipment first."', next: 'village_shop' }
+                ]
+            },
+            
+            village_explore: {
+                text: `The old man nods approvingly. "Good. Head to the MRT station — but watch yourself. The underground tunnels have become dangerous since the Tear was stolen. Strange creatures roam the tracks."
+
+You walk through Changi Village. The streets are quiet, almost too quiet. A cat eyes you suspiciously from a windowsill. At the MRT entrance, you notice two paths:
+
+The East-West Line, dark and foreboding, or the bus stop where a few weary travelers wait.`,
+                choices: [
+                    { text: 'Take the MRT (East-West Line)', next: 'mrt_tunnel', action: () => { state.hp -= 10; } },
+                    { text: 'Wait for the bus', next: 'bus_ride' },
+                    { text: 'Explore the village more', next: 'village_secret' }
+                ]
+            },
+            
+            merlion_lore: {
+                text: `"The Merlion's Tear is no ordinary gem," the old man whispers. "It's a crystal formed from the essence of Singapore itself — prosperity, harmony, resilience. It was hidden in Marina Bay, protected by ancient wards."
+
+"Three days ago, someone broke those wards. The Tear vanished. Since then, the island has been... changing. The MRT tunnels grow longer. The HDB blocks shift at night. Even the food courts serve dishes that don't exist."
+
+He shudders. "Find the Tear, and you might save us all. Fail, and Singapore becomes just another forgotten city."`,
+                choices: [
+                    { text: '"Who stole it?"', next: 'thief_hint' },
+                    { text: '"Where should I look?"', next: 'clues_location' },
+                    { text: '"I\'ll find it. For Singapore."', next: 'village_explore' }
+                ]
+            },
+            
+            village_shop: {
+                text: `The old man gestures to a nearby provision shop. "Ah Seng's place. He sells more than just canned drinks and lottery tickets, if you know how to ask."
+
+Inside Ah Seng's shop, the air smells of incense and old paper. Behind the counter, a middle-aged man sorts through a collection of curious items — a compass that spins backwards, a kopi cup that never empties, and a Singapura cat that seems to watch you with human intelligence.
+
+"Newcomer, eh?" Ah Seng grins. "I got standard gear, or... special items. What you need?"`,
+                choices: [
+                    { text: 'Buy a better weapon (20 gold)', next: 'buy_weapon', condition: () => state.gold >= 20 },
+                    { text: 'Buy healing potions (10 gold)', next: 'buy_potion', condition: () => state.gold >= 10 },
+                    { text: '"Tell me about the special items"', next: 'special_items' },
+                    { text: 'Leave the shop', next: 'village_explore' }
+                ]
+            },
+            
+            buy_weapon: {
+                text: `Ah Seng pulls out a parang with intricate engravings. "This blade has seen the rubber plantations of old Malaya. It's got history — and power."
+
+You hand over 20 gold. The parang feels right in your hand, balanced and deadly.
+
+[Acquired: Enchanted Parang]`,
+                action: () => {
+                    state.gold -= 20;
+                    state.inventory.push('Enchanted Parang');
+                },
+                choices: [
+                    { text: 'Continue', next: 'village_explore' }
+                ]
+            },
+            
+            buy_potion: {
+                text: `Ah Seng produces three small bottles filled with glowing red liquid. "Traditional Chinese medicine. My grandmother's recipe — mostly."
+
+[Acquired: 3 Healing Potions]`,
+                action: () => {
+                    state.gold -= 10;
+                    state.inventory.push('Healing Potion x3');
+                    state.hp = Math.min(state.hp + 30, state.maxHp);
+                },
+                choices: [
+                    { text: 'Continue', next: 'village_explore' }
+                ]
+            },
+            
+            special_items: {
+                text: `Ah Seng lowers his voice. "These aren't for everyone. The EZ-Link card of Infinite Rides — tap anywhere, go anywhere. The Kaya Jar of Endless Breakfast — sustains you without eating. And the Singlish Dictionary of Persuasion — understand any dialect, convince any auntie."
+
+"But these cost more than gold. They cost... favors."`,
+                choices: [
+                    { text: '"I\'ll come back when I\'m ready for that."', next: 'village_explore' },
+                    { text: '"What kind of favors?"', next: 'favors_quest' }
+                ]
+            },
+            
+            mrt_tunnel: {
+                text: `The MRT station is eerily silent. The lights flicker overhead as you descend into the tunnel. The tracks stretch into darkness, and you hear something skittering in the shadows.
+
+A creature emerges — a twisted mass of train parts and dark energy, glowing with an unnatural red light. It's a Track Wraith, born from the disruption of the Merlion's Tear.
+
+The wraith lunges at you!`,
+                choices: [
+                    { text: 'Fight with your dagger', next: 'combat_wraith', condition: () => !state.inventory.includes('Enchanted Parang') },
+                    { text: 'Fight with your parang', next: 'combat_wraith_strong', condition: () => state.inventory.includes('Enchanted Parang') },
+                    { text: 'Run back up the stairs', next: 'village_explore', action: () => { state.hp -= 5; } }
+                ]
+            },
+            
+            combat_wraith: {
+                text: `You slash with your rusty dagger. The blade connects, but the wraith barely flinches. It retaliates with a blast of dark energy, burning your arm.
+
+You fight desperately, landing hits where you can. Finally, with a lucky strike to what passes for its head, the wraith dissolves into smoke.
+
+You're wounded but alive.`,
+                action: () => { state.hp -= 25; },
+                choices: [
+                    { text: 'Continue down the tunnel', next: 'tunnel_reward' },
+                    { text: 'Rest and heal', next: 'tunnel_rest', condition: () => state.inventory.includes('Healing Potion x3') }
+                ]
+            },
+            
+            combat_wraith_strong: {
+                text: `Your enchanted parang glows as you swing. The blade cuts through the wraith's dark form like paper. The creature shrieks and tries to retreat, but you press the attack.
+
+With a final, powerful strike, the wraith explodes into harmless sparks. The parang hums with satisfaction.`,
+                action: () => { state.hp -= 10; },
+                choices: [
+                    { text: 'Search the remains', next: 'tunnel_reward' },
+                    { text: 'Continue deeper', next: 'tunnel_deep' }
+                ]
+            },
+            
+            tunnel_reward: {
+                text: `Among the wraith's remains, you find a strange token — an old MRT coin from the 1980s, still warm to the touch. It pulses with faint energy.
+
+"This might be useful," you think, pocketing it.
+
+[Acquired: Vintage MRT Token]
+
+Further down the tunnel, you see a faint light. The path to Tanah Merah station — and from there, to the rest of Singapore.`,
+                action: () => {
+                    state.inventory.push('Vintage MRT Token');
+                    state.gold += 15;
+                },
+                choices: [
+                    { text: 'Head to Tanah Merah', next: 'tanah_merah' },
+                    { text: 'Explore a side tunnel', next: 'secret_tunnel' }
+                ]
+            },
+            
+            tanah_merah: {
+                text: `Tanah Merah station is a hub of activity — well, as much activity as you can expect in these strange times. A group of survivors has set up a small camp here, trading goods and sharing information.
+
+A woman in tactical gear approaches you. "You're the one from Changi? Good. I'm Mei. We need to talk about the Merlion's Tear."`,
+                choices: [
+                    { text: '"What do you know?"', next: 'mei_info' },
+                    { text: '"Who are you?"', next: 'mei_intro' },
+                    { text: '"I work alone."', next: 'mei_alone' }
+                ]
+            },
+            
+            mei_info: {
+                text: `"We know the Tear was taken by someone who calls himself The Collector. He's been gathering artifacts from all over Singapore — the Bukit Timah Monkey King's crown, the Pulau Ubin ghost lantern, even the legendary 4D winning numbers that never lose."
+
+"His base is somewhere in the CBD. But to get there, you'll need to pass through... well, let's just say the Orchard Road shopping district isn't what it used to be."
+
+She hands you a map. "This shows safe routes. And dangerous ones. Choose wisely."`,
+                action: () => {
+                    state.inventory.push('Safe Route Map');
+                },
+                choices: [
+                    { text: 'Take the safe route (longer)', next: 'safe_route' },
+                    { text: 'Take the dangerous shortcut', next: 'dangerous_route' },
+                    { text: '"Tell me more about The Collector"', next: 'collector_lore' }
+                ]
+            },
+            
+            secret_tunnel: {
+                text: `The side tunnel leads to an old WWII bunker, half-collapsed and overgrown with roots. In the center of the room, a ghostly figure in British colonial uniform stands at attention.
+
+"At last," the ghost says. "Someone who can help. I am Lieutenant Blackwood. I've been guarding this bunker since 1942, waiting for someone worthy."
+
+He gestures to a chest. "Take what's inside. But remember — with power comes responsibility. Singapore's fate rests on your shoulders."`,
+                action: () => {
+                    state.inventory.push('Bunker Chest Key');
+                    state.gold += 50;
+                    state.hp = state.maxHp;
+                },
+                choices: [
+                    { text: 'Open the chest', next: 'bunker_reward' },
+                    { text: '"What are you guarding?"', next: 'bunker_lore' }
+                ]
+            },
+            
+            bunker_reward: {
+                text: `Inside the chest, you find:
+- A pristine Webley revolver, still loaded
+- 50 gold coins from the colonial era
+- A journal detailing the original location of the Merlion's Tear
+
+[Acquired: Webley Revolver, Colonial Gold, Ancient Journal]
+
+The journal mentions that the Tear was originally hidden in the Singapore River, near where Raffles first landed. But The Collector has likely moved it by now.`,
+                action: () => {
+                    state.inventory.push('Webley Revolver');
+                    state.inventory.push('Ancient Journal');
+                    state.gold += 50;
+                },
+                choices: [
+                    { text: 'Thank the ghost and leave', next: 'tanah_merah' },
+                    { text: 'Ask about the journal', next: 'journal_decode' }
+                ]
+            },
+            
+            safe_route: {
+                text: `You follow Mei's map through the back streets of Bedok and Kallang. The journey is uneventful but long. You pass abandoned HDB blocks where shadows move behind windows, and empty hawker centers where the food still steams despite no one being there.
+
+By the time you reach the CBD, night has fallen. The skyscrapers loom like silent giants, their lights flickering in patterns that almost seem like code.
+
+You stand at the entrance of Raffles Place. The Collector's lair is somewhere in this concrete jungle.`,
+                choices: [
+                    { text: 'Search the underground malls', next: 'underground_mall' },
+                    { text: 'Climb to the rooftop gardens', next: 'rooftop_gardens' },
+                    { text: 'Check the old bank vaults', next: 'bank_vaults' }
+                ]
+            },
+            
+            dangerous_route: {
+                text: `You ignore Mei's warnings and cut through Orchard Road. The shopping district has become a labyrinth of twisted storefronts and mannequins that watch you with painted eyes.
+
+At ION Orchard, a group of fashion zombies — shoppers who never left — attack you. Their designer bags swing like weapons, and their credit cards cut like blades.`,
+                action: () => { state.hp -= 30; },
+                choices: [
+                    { text: 'Fight through them', next: 'orchard_combat' },
+                    { text: 'Hide in a store', next: 'store_hide' },
+                    { text: 'Use the MRT token', next: 'token_escape', condition: () => state.inventory.includes('Vintage MRT Token') }
+                ]
+            },
+            
+            orchard_combat: {
+                text: `You fight desperately against the fashion zombies. Your weapon strikes true, but there are so many of them. Just as you're about to be overwhelmed, a squad of tactical survivors arrives — Mei's team, following you to make sure you don't die.
+
+"Told you the safe route was better," Mei says, helping you up. "But I respect the guts. Come on, we're close to the CBD."`,
+                action: () => { state.hp -= 20; },
+                choices: [
+                    { text: 'Continue to the CBD', next: 'cbd_arrival' }
+                ]
+            },
+            
+            cbd_arrival: {
+                text: `Raffles Place at night is both beautiful and terrifying. The Merlion statue in the distance seems to weep — or maybe that's just rain. You feel the absence of the Tear like a missing tooth.
+
+Mei's team sets up a perimeter. "The Collector is in the UOB Plaza building. Top floor. He's been using the Tear's power to... well, you'll see."
+
+She hands you a comms device. "We'll provide backup. But you need to be the one to confront him. The Tear responds to those who truly love Singapore."`,
+                choices: [
+                    { text: 'Enter UOB Plaza', next: 'final_confrontation' },
+                    { text: '"Any last advice?"', next: 'mei_advice' },
+                    { text: 'Prepare your equipment', next: 'final_prep' }
+                ]
+            },
+            
+            final_confrontation: {
+                text: `The top floor of UOB Plaza has been transformed. The Collector — a man in an immaculate suit, surrounded by floating artifacts — turns to face you.
+
+"Ah, the hero from Changi. I've been expecting you." He holds up the Merlion's Tear, now pulsing with sickly red light. "You want this? Come and take it."
+
+The room fills with dark energy. The final battle begins.`,
+                choices: [
+                    { text: 'Attack immediately', next: 'final_battle' },
+                    { text: 'Try to reason with him', next: 'final_talk' },
+                    { text: 'Use the Ancient Journal', next: 'journal_power', condition: () => state.inventory.includes('Ancient Journal') }
+                ]
+            },
+            
+            final_battle: {
+                text: `You charge at The Collector, weapon raised. He laughs and unleashes a wave of dark energy. The battle is fierce — you dodge artifacts thrown like missiles, counter his shadow attacks, and slowly close the distance.
+
+With a final, desperate strike, you shatter his concentration. The Merlion's Tear falls from his grasp, its light returning to pure white.
+
+The Collector collapses. "Impossible... I had everything..."`,
+                action: () => { state.hp -= 40; },
+                choices: [
+                    { text: 'Claim the Tear', next: 'victory' }
+                ]
+            },
+            
+            final_talk: {
+                text: `"Why are you doing this?" you demand.
+
+The Collector pauses. "Singapore took everything from me. My business, my family, my pride. I wanted to take something back — something that mattered."
+
+He looks at the Tear. "But maybe... maybe I've become what I hated. A leech, feeding off the city instead of building it up."
+
+With a sigh, he drops the Tear. "Take it. Save this damn island."`,
+                choices: [
+                    { text: 'Take the Tear', next: 'victory_peaceful' }
+                ]
+            },
+            
+            victory: {
+                text: `You grasp the Merlion's Tear. Its warmth floods through you — not just heat, but the collective spirit of Singapore. Every hawker auntie, every office worker, every child playing in the HDB playground. Their resilience, their humor, their determination.
+
+The Tear's light spreads across the island. The MRT tunnels return to normal. The HDB blocks stop shifting. The food courts serve real food again.
+
+Singapore is saved.`,
+                choices: [
+                    { text: 'THE END - Play Again', next: 'start', action: () => { resetGame(); } }
+                ]
+            },
+            
+            victory_peaceful: {
+                text: `The Merlion's Tear glows softly in your hands. You don't feel power — you feel responsibility. The weight of a nation, but also its hope.
+
+The Collector is taken into custody by Mei's team. "He'll face justice," she assures you. "But he'll also get help. We don't abandon our own, even when they stray."
+
+As dawn breaks over Marina Bay, the Merlion statue seems to smile. Singapore endures, as it always has. Through crisis, through chaos, through everything — the Little Red Dot persists.`,
+                choices: [
+                    { text: 'THE END - Play Again', next: 'start', action: () => { resetGame(); } }
+                ]
+            },
+            
+            // Supporting scenes
+            bus_ride: {
+                text: `The bus arrives — an old double-decker with a friendly driver who winks at you. "First time in Singapore? Don't worry, lah. We take care of our own."
+
+The ride is peaceful. You pass through Tampines, Bedok, and Geylang. The city unfolds like a story — each neighborhood with its own character, its own secrets.
+
+At Bugis, the bus stops. "End of the line, friend. Good luck on your quest."`,
+                action: () => { state.gold += 5; },
+                choices: [
+                    { text: 'Explore Bugis', next: 'bugis_explore' },
+                    { text: 'Head to Marina Bay', next: 'marina_bay' }
+                ]
+            },
+            
+            village_secret: {
+                text: `You explore Changi Village thoroughly. Behind the hawker center, you find a hidden shrine to the sea goddess. A weathered plaque reads: "For those who protect Singapore's shores."
+
+An old auntie tends the shrine. "You have the look of someone on a quest. Take this — blessed by the temple." She hands you a charm.
+
+[Acquired: Sea Goddess Charm]`,
+                action: () => { state.inventory.push('Sea Goddess Charm'); state.maxHp += 20; state.hp += 20; },
+                choices: [
+                    { text: 'Thank her and continue', next: 'village_explore' }
+                ]
+            },
+            
+            thief_hint: {
+                text: `"Nobody knows for sure," the old man admits. "But the wards were broken by someone who knew Singapore's secrets. Someone who understood the ley lines beneath the MRT tunnels, the feng shui of the CBD, the old magic that predates Raffles."
+
+"Some say it's a disgruntled ex-minister. Others whisper about a foreign power. But me? I think it's someone who lost faith in Singapore. And that's the most dangerous enemy of all."`,
+                choices: [
+                    { text: '"I'll find them."', next: 'village_explore' }
+                ]
+            },
+            
+            clues_location: {
+                text: `"Start with the MRT tunnels. The Tear's disappearance disrupted the island's energy flow, and the tunnels are where it's most concentrated. You'll find... things... down there. But also clues."
+
+"After that, head to Tanah Merah. There's a resistance group there — survivors who've been tracking the Tear. They can help you."
+
+"And if you make it to the CBD? Look for the UOB Plaza. The Collector fancies himself a banker of souls."`,
+                choices: [
+                    { text: '"I'm on my way."', next: 'village_explore' }
+                ]
+            },
+            
+            favors_quest: {
+                text: `"Small things. Deliver a package to a contact in Geylang. Retrieve a family heirloom from a haunted HDB flat. Convince a stubborn auntie to move from her condemned building."
+
+"Nothing heroic. Just... Singaporean. We help each other, even when it's inconvenient. Especially when it's inconvenient."`,
+                choices: [
+                    { text: '"I'll think about it."', next: 'village_explore' }
+                ]
+            },
+            
+            tunnel_rest: {
+                text: `You drink a healing potion. The familiar taste of herbal medicine — bitter, then sweet — flows through you. Your wounds close, and energy returns.
+
+[HP restored to full]`,
+                action: () => {
+                    state.hp = state.maxHp;
+                    const idx = state.inventory.indexOf('Healing Potion x3');
+                    if (idx > -1) state.inventory[idx] = 'Healing Potion x2';
+                },
+                choices: [
+                    { text: 'Continue', next: 'tunnel_reward' }
+                ]
+            },
+            
+            tunnel_deep: {
+                text: `Deeper in the tunnel, you find an abandoned control room. Old monitors flicker with static, but one shows a live feed — The Collector, standing in UOB Plaza, holding the Tear.
+
+"He's there," you whisper. "And he knows we're coming."`,
+                choices: [
+                    { text: 'Head to Tanah Merah', next: 'tanah_merah' }
+                ]
+            },
+            
+            mei_intro: {
+                text: `"I'm Mei. Former SAF, now... well, now I'm whatever Singapore needs me to be. We call ourselves the Merlion Guard — protectors of the island's spirit."
+
+"We've been tracking The Collector for weeks. He's dangerous, but he's also desperate. Desperate men make mistakes."`,
+                choices: [
+                    { text: '"Tell me what you know."', next: 'mei_info' }
+                ]
+            },
+            
+            mei_alone: {
+                text: `Mei shrugs. "Suit yourself. But Singapore wasn't built by lone wolves. It was built by communities, by neighbors helping neighbors, by strangers becoming family."
+
+"The door's open if you change your mind. The Merlion Guard welcomes anyone who loves this island."`,
+                choices: [
+                    { text: '"Fine. What do you know?"', next: 'mei_info' },
+                    { text: 'Leave and go alone', next: 'solo_route' }
+                ]
+            },
+            
+            collector_lore: {
+                text: `"The Collector was once a respected businessman. Made millions in property. Then the 2028 crash hit — not the financial one, the supernatural one. When the first MRT wraiths appeared, his family was on a train."
+
+"He survived. They didn't. Now he collects artifacts, trying to gather enough power to... what? Rewrite history? Bring them back? We don't know. But whatever he's planning, it won't be good for Singapore."`,
+                choices: [
+                    { text: '"I'll stop him."', next: 'safe_route' }
+                ]
+            },
+            
+            journal_decode: {
+                text: `The journal reveals that the Merlion's Tear was originally created by Sir Stamford Raffles' own sorcerer — a man named Thaddeus Blackwood (Lieutenant Blackwood's ancestor). It was meant to protect Singapore from "the darkness that follows empire."
+
+The Tear draws power from the people's belief in Singapore. As long as Singaporeans remain resilient, the Tear remains strong. The Collector's mistake was thinking he could wield it alone.`,
+                choices: [
+                    { text: 'Continue to Tanah Merah', next: 'tanah_merah' }
+                ]
+            },
+            
+            underground_mall: {
+                text: `The underground malls are a maze of shuttered stores and echoing corridors. You find The Collector's minions — corrupted retail workers who attack with pricing guns and mannequin limbs.
+
+After a tense battle, you find the service elevator to the top floor.`,
+                action: () => { state.hp -= 15; },
+                choices: [
+                    { text: 'Take the elevator', next: 'final_confrontation' }
+                ]
+            },
+            
+            rooftop_gardens: {
+                text: `You climb through the vertical gardens, past sleeping monitor lizards and bioluminescent orchids. The view of Singapore at night takes your breath away — even in crisis, the city remains beautiful.
+
+At the top, you find a helipad. And The Collector, waiting.`,
+                choices: [
+                    { text: 'Confront him', next: 'final_confrontation' }
+                ]
+            },
+            
+            bank_vaults: {
+                text: `The old bank vaults are reinforced with more than steel — magical wards protect the gold reserves. You find a secret passage that leads directly to The Collector's chamber.
+
+"Clever," his voice echoes. "But I've been expecting you."`,
+                choices: [
+                    { text: 'Enter the chamber', next: 'final_confrontation' }
+                ]
+            },
+            
+            store_hide: {
+                text: `You duck into a luxury store. The zombies pass by, their designer heels clicking on the marble floor. You wait until it's safe, then slip out through the back exit.
+
+The detour cost you time, but you're alive.`,
+                choices: [
+                    { text: 'Continue to the CBD', next: 'cbd_arrival' }
+                ]
+            },
+            
+            token_escape: {
+                text: `You hold up the Vintage MRT Token. It glows brightly, and suddenly you're standing at Raffles Place station — transported by the old magic embedded in the token.
+
+"Handy," you mutter, pocketing the now-dim token.`,
+                choices: [
+                    { text: 'Continue to the CBD', next: 'cbd_arrival' }
+                ]
+            },
+            
+            mei_advice: {
+                text: `"Don't fight him alone. The Tear responds to community, to connection. If you have friends, allies, even strangers who believe in you — draw on that strength."
+
+"And remember — Singapore has survived worse. Japanese occupation, independence, economic crises, pandemics. One man with a stolen gem? That's just Tuesday."`,
+                choices: [
+                    { text: 'Enter UOB Plaza', next: 'final_confrontation' }
+                ]
+            },
+            
+            final_prep: {
+                text: `You check your equipment:
+${state.inventory.join(', ')}
+
+HP: ${state.hp}/${state.maxHp}
+Gold: ${state.gold}
+
+You're as ready as you'll ever be.`,
+                choices: [
+                    { text: 'Enter UOB Plaza', next: 'final_confrontation' }
+                ]
+            },
+            
+            journal_power: {
+                text: `You read from the Ancient Journal. The words are in old Malay, but somehow you understand them. The Collector freezes as the journal's magic binds him — not with force, but with truth.
+
+"You cannot possess what belongs to all," the journal's voice echoes. "The Tear is Singapore's heart. And you are just one man."
+
+The Tear floats from his grasp, returning to its rightful place.`,
+                choices: [
+                    { text: 'Claim the Tear', next: 'victory_peaceful' }
+                ]
+            },
+            
+            bugis_explore: {
+                text: `Bugis is lively despite the crisis. Street vendors sell protective charms, and a fortune teller offers to read your palm. "You have the mark of the Merlion," she says. "Great destiny. Great danger."
+
+You find a shortcut to Marina Bay through the old colonial district.`,
+                action: () => { state.gold += 10; },
+                choices: [
+                    { text: 'Head to Marina Bay', next: 'marina_bay' }
+                ]
+            },
+            
+            marina_bay: {
+                text: `Marina Bay is hauntingly beautiful at dusk. The Merlion statue weeps silently — without the Tear, it has no power. The Singapore Flyer stands still, its capsules dark.
+
+But you feel something. A pull. The Tear wants to return home.`,
+                choices: [
+                    { text: 'Follow the pull', next: 'cbd_arrival' }
+                ]
+            },
+            
+            solo_route: {
+                text: `You go alone. The journey is harder — no backup, no intel, no friendly faces. But you move fast, and you learn to rely on your instincts.
+
+By the time you reach the CBD, you're battered but unbroken. Singaporean resilience in action.`,
+                action: () => { state.hp -= 20; },
+                choices: [
+                    { text: 'Enter the CBD', next: 'cbd_arrival' }
+                ]
+            },
+            
+            bunker_lore: {
+                text: `"The Japanese knew about the Tear," Lieutenant Blackwood says. "They tried to take it in 1942. My grandfather died stopping them. The Tear's power — it's not just magic. It's the soul of Singapore."
+
+"And souls cannot be owned. Only protected."`,
+                choices: [
+                    { text: 'Open the chest', next: 'bunker_reward' }
+                ]
+            }
+        };
+
+        // Game functions
+        function resetGame() {
+            state = {
+                hp: 100,
+                maxHp: 100,
+                gold: 10,
+                location: 'Changi Village',
+                inventory: ['Rusty Dagger'],
+                flags: {}
+            };
+            showScene('start');
+        }
+
+        function updateStats() {
+            document.getElementById('hp').textContent = `${state.hp}/${state.maxHp}`;
+            document.getElementById('gold').textContent = state.gold;
+            document.getElementById('location').textContent = state.location;
+            document.getElementById('inventory-items').textContent = state.inventory.join(', ') || 'Empty';
+            
+            if (state.hp <= 0) {
+                document.getElementById('story').innerHTML = '<div class="game-over">☠️ GAME OVER</div>You have fallen. Singapore's fate remains uncertain...';
+                document.getElementById('choices').innerHTML = '<button class="restart-btn" onclick="resetGame()">Try Again</button>';
+            }
+        }
+
+        function typeText(text, element, callback) {
+            element.innerHTML = '';
+            let i = 0;
+            const speed = 15;
+            
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else if (callback) {
+                    callback();
+                }
+            }
+            type();
+        }
+
+        function showScene(sceneId) {
+            const scene = scenes[sceneId];
+            if (!scene) {
+                console.error('Scene not found:', sceneId);
+                return;
+            }
+            
+            // Execute scene action if exists
+            if (scene.action) scene.action();
+            
+            const storyEl = document.getElementById('story');
+            const choicesEl = document.getElementById('choices');
+            
+            choicesEl.innerHTML = '';
+            
+            typeText(scene.text, storyEl, () => {
+                // Show choices
+                scene.choices.forEach(choice => {
+                    if (choice.condition && !choice.condition()) return;
+                    
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn';
+                    btn.textContent = choice.text;
+                    btn.onclick = () => {
+                        if (choice.action) choice.action();
+                        showScene(choice.next);
+                    };
+                    choicesEl.appendChild(btn);
+                });
+            });
+            
+            updateStats();
+        }
+
+        // Start game
+        showScene('start');
+    </script>
+</body>
+</html>
