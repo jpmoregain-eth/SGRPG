@@ -433,7 +433,7 @@
             content.innerHTML = `
                 <div style="width: 100%;">
                     <!-- Title -->
-                    <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="text-align: center; margin-bottom: 40px;">
                         <div style="font-family: 'Orbitron', sans-serif; font-size: 28px; color: #00d4ff; letter-spacing: 4px;">
                             CHARACTER STATUS
                         </div>
@@ -443,7 +443,7 @@
                     </div>
                     
                     <!-- Stats Grid -->
-                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 30px;">
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 40px;">
                         <div class="stat-box">
                             <div class="stat-label-box">STR</div>
                             <div class="stat-value-box">${player.str}</div>
@@ -476,7 +476,7 @@
                     </div>
                     
                     <!-- HP and Mana Bars -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px;">
                         <div class="resource-box">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                 <span style="color: #ff4444; font-weight: 600;">❤ HP</span>
@@ -504,48 +504,237 @@
                         </div>
                     </div>
                     
-                    <!-- Inventory -->
-                    <div class="inventory-box">
-                        <div style="font-family: 'Orbitron', sans-serif; font-size: 16px; color: #00d4ff; margin-bottom: 15px; letter-spacing: 2px;">
-                            🎒 INVENTORY
+                    <div class="tech-line" style="margin-top: auto;"></div>
+                    
+                    <button class="start-btn" onclick="showEquipment()">
+                        NEXT<span class="cursor"></span>
+                    </button>
+                </div>
+            `;
+        }
+        
+        function showEquipment() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div style="width: 100%;">
+                    <!-- Title -->
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div style="font-family: 'Orbitron', sans-serif; font-size: 28px; color: #00d4ff; letter-spacing: 4px;">
+                            EQUIPMENT
+                        </div>
+                        <div style="font-size: 12px; color: rgba(0, 212, 255, 0.4); letter-spacing: 2px; margin-top: 5px;">
+                            MANAGE YOUR GEAR
+                        </div>
+                    </div>
+                    
+                    <!-- Equipment Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 30px;">
+                        <div class="equip-slot">
+                            <div class="equip-label">MAIN HAND</div>
+                            <div class="equip-item equipped">
+                                <div class="equip-icon">🗡️</div>
+                                <div class="equip-details">
+                                    <div class="equip-name">Rusty Dagger</div>
+                                    <div class="equip-stats">DMG: 3-5 | SPD: Fast</div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                            <div class="inv-item equipped">
-                                <div class="inv-icon">🗡️</div>
-                                <div class="inv-details">
-                                    <div class="inv-name">Rusty Dagger</div>
-                                    <div class="inv-type">Weapon - Equipped</div>
+                        <div class="equip-slot">
+                            <div class="equip-label">OFF HAND</div>
+                            <div class="equip-item empty">
+                                <div class="equip-icon">□</div>
+                                <div class="equip-details">
+                                    <div class="equip-name">Empty</div>
                                 </div>
                             </div>
-                            
-                            <div class="inv-item">
-                                <div class="inv-icon">🧪</div>
-                                <div class="inv-details">
-                                    <div class="inv-name">Healing Potion</div>
-                                    <div class="inv-type">Consumable - Heals 50 HP</div>
+                        </div>
+                        
+                        <div class="equip-slot">
+                            <div class="equip-label">HEAD</div>
+                            <div class="equip-item empty">
+                                <div class="equip-icon">□</div>
+                                <div class="equip-details">
+                                    <div class="equip-name">Empty</div>
                                 </div>
                             </div>
-                            
-                            <div class="inv-item empty">
-                                <div class="inv-icon">□</div>
-                                <div class="inv-details">
-                                    <div class="inv-name">Empty</div>
-                                    <div class="inv-type">Armor Slot</div>
+                        </div>
+                        
+                        <div class="equip-slot">
+                            <div class="equip-label">BODY</div>
+                            <div class="equip-item empty">
+                                <div class="equip-icon">□</div>
+                                <div class="equip-details">
+                                    <div class="equip-name">Empty</div>
                                 </div>
                             </div>
-                            
-                            <div class="inv-item empty">
-                                <div class="inv-icon">□</div>
-                                <div class="inv-details">
-                                    <div class="inv-name">Empty</div>
-                                    <div class="inv-type">Accessory Slot</div>
+                        </div>
+                        
+                        <div class="equip-slot">
+                            <div class="equip-label">HANDS</div>
+                            <div class="equip-item empty">
+                                <div class="equip-icon">□</div>
+                                <div class="equip-details">
+                                    <div class="equip-name">Empty</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="equip-slot">
+                            <div class="equip-label">LEGS</div>
+                            <div class="equip-item empty">
+                                <div class="equip-icon">□</div>
+                                <div class="equip-details">
+                                    <div class="equip-name">Empty</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="equip-slot">
+                            <div class="equip-label">NECKLACE</div>
+                            <div class="equip-item empty">
+                                <div class="equip-icon">□</div>
+                                <div class="equip-details">
+                                    <div class="equip-name">Empty</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="equip-slot">
+                            <div class="equip-label">RING 1</div>
+                            <div class="equip-item empty">
+                                <div class="equip-icon">□</div>
+                                <div class="equip-details">
+                                    <div class="equip-name">Empty</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="equip-slot">
+                            <div class="equip-label">RING 2</div>
+                            <div class="equip-item empty">
+                                <div class="equip-icon">□</div>
+                                <div class="equip-details">
+                                    <div class="equip-name">Empty</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="tech-line" style="margin-top: 30px;"></div>
+                    <div class="tech-line" style="margin-top: auto;"></div>
+                    
+                    <button class="start-btn" onclick="showInventory()">
+                        NEXT<span class="cursor"></span>
+                    </button>
+                </div>
+                
+                <style>
+                    .equip-slot {
+                        background: rgba(0, 212, 255, 0.05);
+                        border: 1px solid rgba(0, 212, 255, 0.2);
+                        padding: 12px;
+                    }
+                    .equip-label {
+                        font-family: 'Orbitron', sans-serif;
+                        font-size: 10px;
+                        color: rgba(0, 212, 255, 0.5);
+                        letter-spacing: 2px;
+                        margin-bottom: 8px;
+                    }
+                    .equip-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        padding: 10px;
+                        background: rgba(0, 212, 255, 0.05);
+                        border: 1px solid rgba(0, 212, 255, 0.2);
+                    }
+                    .equip-item.equipped {
+                        border-color: rgba(0, 212, 255, 0.5);
+                        background: rgba(0, 212, 255, 0.1);
+                    }
+                    .equip-item.empty {
+                        opacity: 0.5;
+                    }
+                    .equip-icon {
+                        font-size: 20px;
+                        width: 30px;
+                        text-align: center;
+                    }
+                    .equip-name {
+                        font-size: 13px;
+                        color: #00d4ff;
+                        font-weight: 600;
+                    }
+                    .equip-stats {
+                        font-size: 10px;
+                        color: rgba(0, 212, 255, 0.4);
+                    }
+                </style>
+            `;
+        }
+        
+        function showInventory() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div style="width: 100%;">
+                    <!-- Title -->
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div style="font-family: 'Orbitron', sans-serif; font-size: 28px; color: #00d4ff; letter-spacing: 4px;">
+                            INVENTORY
+                        </div>
+                        <div style="font-size: 12px; color: rgba(0, 212, 255, 0.4); letter-spacing: 2px; margin-top: 5px;">
+                            MANAGE YOUR ITEMS
+                        </div>
+                    </div>
+                    
+                    <!-- Inventory Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px;">
+                        <div class="inv-item">
+                            <div class="inv-icon">🧪</div>
+                            <div class="inv-details">
+                                <div class="inv-name">Healing Potion</div>
+                                <div class="inv-type">Consumable - Heals 50 HP</div>
+                            </div>
+                        </div>
+                        
+                        <div class="inv-item empty">
+                            <div class="inv-icon">□</div>
+                            <div class="inv-details">
+                                <div class="inv-name">Empty</div>
+                            </div>
+                        </div>
+                        
+                        <div class="inv-item empty">
+                            <div class="inv-icon">□</div>
+                            <div class="inv-details">
+                                <div class="inv-name">Empty</div>
+                            </div>
+                        </div>
+                        
+                        <div class="inv-item empty">
+                            <div class="inv-icon">□</div>
+                            <div class="inv-details">
+                                <div class="inv-name">Empty</div>
+                            </div>
+                        </div>
+                        
+                        <div class="inv-item empty">
+                            <div class="inv-icon">□</div>
+                            <div class="inv-details">
+                                <div class="inv-name">Empty</div>
+                            </div>
+                        </div>
+                        
+                        <div class="inv-item empty">
+                            <div class="inv-icon">□</div>
+                            <div class="inv-details">
+                                <div class="inv-name">Empty</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tech-line" style="margin-top: auto;"></div>
                     
                     <button class="start-btn" onclick="beginAdventure()">
                         BEGIN<span class="cursor"></span>
