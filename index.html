@@ -877,17 +877,376 @@
         }
         
         function exploreDungeon() {
+            showFindPotion();
+        }
+        
+        function showFindPotion() {
             const content = document.getElementById('content');
             content.innerHTML = `
-                <div style="text-align: center; padding: 40px;">
-                    <div style="font-family: 'Orbitron', sans-serif; font-size: 20px; color: #00d4ff; margin-bottom: 20px;">
-                        EXPLORATION BEGINS
+                <div class="content-inner">
+                    <div style="font-size: 16px; line-height: 1.8; color: rgba(0, 212, 255, 0.85); text-align: center; max-width: 500px;">
+                        <p style="margin-bottom: 15px;">You step forward, your boots crunching against loose gravel.</p>
+                        
+                        <p style="margin-bottom: 15px;">The corridor widens into a small chamber. Broken crates litter the floor, remnants of some long-forgotten supply room.</p>
+                        
+                        <p style="margin-bottom: 15px; color: #00d4ff;">Something glints in the torchlight — a small vial tucked between the splintered wood.</p>
+                        
+                        <p>🧪 <strong>Healing Potion acquired!</strong></p>
                     </div>
-                    <div style="color: rgba(0, 212, 255, 0.5); font-size: 14px;">
-                        (Next: Build combat or event system)
-                    </div>
+                    
+                    <div class="tech-line" style="width: 60%; margin: 30px 0;"></div>
+                </div>
+                
+                <div class="bottom-bar">
+                    <button class="start-btn" onclick="showBlackAntEncounter()">
+                        CONTINUE<span class="cursor"></span>
+                    </button>
                 </div>
             `;
+            
+            // Add potion to inventory
+            player.inventory = player.inventory || [];
+            player.inventory.push('Healing Potion');
+        }
+        
+        function showBlackAntEncounter() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="content-inner">
+                    <div style="font-size: 16px; line-height: 1.8; color: rgba(0, 212, 255, 0.85); text-align: center; max-width: 500px;">
+                        <p style="margin-bottom: 15px;">A skittering sound grows louder. From a crack in the wall, a <strong style="color: #666;">Black Ant</strong> emerges.</p>
+                        
+                        <p style="margin-bottom: 15px;">It's the size of a dog, mandibles clicking with hunger. Primitive, but dangerous in numbers.</p>
+                        
+                        <p style="margin-bottom: 15px; color: #00d4ff; font-style: italic;">"First blood, vessel. Don't disappoint me."</p>
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); border-radius: 5px;">
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 14px; color: #ff4444; margin-bottom: 10px;">⚔️ BATTLE START</div>
+                            <div style="font-size: 14px; color: #ff4444;">Black Ant HP: 15/15</div>
+                        </div>
+                        
+                        <p>You grip your Rusty Dagger and lunge forward.</p>
+                    </div>
+                    
+                    <div class="tech-line" style="width: 60%; margin: 30px 0;"></div>
+                </div>
+                
+                <div class="bottom-bar">
+                    <button class="start-btn" onclick="showBlackAntVictory()">
+                        FIGHT<span class="cursor"></span>
+                    </button>
+                </div>
+            `;
+        }
+        
+        function showBlackAntVictory() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="content-inner">
+                    <div style="font-size: 16px; line-height: 1.8; color: rgba(0, 212, 255, 0.85); text-align: center; max-width: 500px;">
+                        <p style="margin-bottom: 15px;">Your blade strikes true. The Black Ant collapses, legs twitching.</p>
+                        
+                        <p style="margin-bottom: 15px; color: #00d4ff;">"Clean kill. You've done this before... or have you?"</p>
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 5px;">
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 14px; color: #00d4ff; margin-bottom: 10px;">🎉 VICTORY</div>
+                            <div style="font-size: 14px; color: rgba(0, 212, 255, 0.7);">EXP Gained: 10</div>
+                            <div style="font-size: 14px; color: rgba(0, 212, 255, 0.7);">Loot: 🦴 Ant Mandible</div>
+                        </div>
+                        
+                        <p>The voice chuckles. "A trophy for your first kill. How quaint."</p>
+                    </div>
+                    
+                    <div class="tech-line" style="width: 60%; margin: 30px 0;"></div>
+                </div>
+                
+                <div class="bottom-bar">
+                    <button class="start-btn" onclick="showRedAntEncounter()">
+                        CONTINUE<span class="cursor"></span>
+                    </button>
+                </div>
+            `;
+            
+            player.inventory.push('Ant Mandible');
+            player.exp = (player.exp || 0) + 10;
+        }
+        
+        function showRedAntEncounter() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="content-inner">
+                    <div style="font-size: 16px; line-height: 1.8; color: rgba(0, 212, 255, 0.85); text-align: center; max-width: 500px;">
+                        <p style="margin-bottom: 15px;">Deeper in the dungeon, the air grows warmer. The stone walls are slick with something... organic.</p>
+                        
+                        <p style="margin-bottom: 15px;">A <strong style="color: #ff4444;">Red Ant</strong> blocks your path — larger, fiercer, its carapace gleaming like polished armor.</p>
+                        
+                        <p style="margin-bottom: 15px; color: #00d4ff; font-style: italic;">"This one has killed before. Mind its acid spit."</p>
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); border-radius: 5px;">
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 14px; color: #ff4444; margin-bottom: 10px;">⚔️ BATTLE START</div>
+                            <div style="font-size: 14px; color: #ff4444;">Red Ant HP: 30/30</div>
+                        </div>
+                        
+                        <p>You raise your dagger, heart pounding.</p>
+                    </div>
+                    
+                    <div class="tech-line" style="width: 60%; margin: 30px 0;"></div>
+                </div>
+                
+                <div class="bottom-bar">
+                    <button class="start-btn" onclick="showRedAntVictory()">
+                        FIGHT<span class="cursor"></span>
+                    </button>
+                </div>
+            `;
+        }
+        
+        function showRedAntVictory() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="content-inner">
+                    <div style="font-size: 16px; line-height: 1.8; color: rgba(0, 212, 255, 0.85); text-align: center; max-width: 500px;">
+                        <p style="margin-bottom: 15px;">The battle is fierce. The Red Ant's mandibles tear into your arm — <span style="color: #ff4444;">-15 HP</span> — but you find an opening.</p>
+                        
+                        <p style="margin-bottom: 15px;">With a desperate thrust, your blade pierces the creature's eye. It shrieks and collapses.</p>
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 5px;">
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 14px; color: #ffd700; margin-bottom: 10px;">⭐ LEVEL UP!</div>
+                            <div style="font-size: 14px; color: rgba(255, 215, 0, 0.7);">Level 1 → Level 2</div>
+                            <div style="font-size: 14px; color: rgba(255, 215, 0, 0.7);">+3 Stat Points to Allocate</div>
+                            <div style="font-size: 14px; color: rgba(255, 215, 0, 0.7);">Loot: 🛡️ Chitin Fragment</div>
+                        </div>
+                        
+                        <p style="color: #00d4ff; font-style: italic;">"Growing stronger, I see. But don't get cocky."</p>
+                    </div>
+                    
+                    <div class="tech-line" style="width: 60%; margin: 30px 0;"></div>
+                </div>
+                
+                <div class="bottom-bar">
+                    <button class="start-btn" onclick="showStatAllocation()">
+                        ALLOCATE STATS<span class="cursor"></span>
+                    </button>
+                </div>
+            `;
+            
+            player.level = 2;
+            player.inventory.push('Chitin Fragment');
+            player.statPoints = 3;
+            player.hp -= 15;
+        }
+        
+        function showStatAllocation() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="content-inner">
+                    <div style="width: 100%;">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 24px; color: #00d4ff; letter-spacing: 4px;">
+                                ALLOCATE STATS
+                            </div>
+                            <div style="font-size: 14px; color: rgba(0, 212, 255, 0.4); margin-top: 5px;">
+                                Points Remaining: <span id="points-remaining" style="color: #ffd700;">${player.statPoints}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 30px;">
+                            <div class="stat-box" onclick="allocateStat('str')" style="cursor: pointer;">
+                                <div class="stat-label-box">STR</div>
+                                <div class="stat-value-box" id="stat-str">${player.str}</div>
+                                <div class="stat-name">Strength</div>
+                            </div>
+                            
+                            <div class="stat-box" onclick="allocateStat('agi')" style="cursor: pointer;">
+                                <div class="stat-label-box">AGI</div>
+                                <div class="stat-value-box" id="stat-agi">${player.agi}</div>
+                                <div class="stat-name">Agility</div>
+                            </div>
+                            
+                            <div class="stat-box" onclick="allocateStat('int')" style="cursor: pointer;">
+                                <div class="stat-label-box">INT</div>
+                                <div class="stat-value-box" id="stat-int">${player.int}</div>
+                                <div class="stat-name">Intelligence</div>
+                            </div>
+                            
+                            <div class="stat-box" onclick="allocateStat('per')" style="cursor: pointer;">
+                                <div class="stat-label-box">PER</div>
+                                <div class="stat-value-box" id="stat-per">${player.per}</div>
+                                <div class="stat-name">Perception</div>
+                            </div>
+                            
+                            <div class="stat-box" onclick="allocateStat('vit')" style="cursor: pointer;">
+                                <div class="stat-label-box">VIT</div>
+                                <div class="stat-value-box" id="stat-vit">${player.vit}</div>
+                                <div class="stat-name">Vitality</div>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; font-size: 12px; color: rgba(0, 212, 255, 0.5); margin-bottom: 20px;">
+                            Click a stat to add 1 point
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bottom-bar">
+                    <button class="start-btn" id="continue-btn" onclick="showFindSecondPotion()" style="opacity: 0.3; pointer-events: none;">
+                        CONTINUE<span class="cursor"></span>
+                    </button>
+                </div>
+            `;
+        }
+        
+        function allocateStat(stat) {
+            if (player.statPoints <= 0) return;
+            
+            player[stat]++;
+            player.statPoints--;
+            
+            document.getElementById('stat-' + stat).textContent = player[stat];
+            document.getElementById('points-remaining').textContent = player.statPoints;
+            
+            if (player.statPoints <= 0) {
+                const btn = document.getElementById('continue-btn');
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+            }
+        }
+        
+        function showFindSecondPotion() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="content-inner">
+                    <div style="font-size: 16px; line-height: 1.8; color: rgba(0, 212, 255, 0.85); text-align: center; max-width: 500px;">
+                        <p style="margin-bottom: 15px;">You press on, deeper into the hive. The walls are now coated with a thin layer of amber resin.</p>
+                        
+                        <p style="margin-bottom: 15px;">Behind a fallen pillar, you spot another vial — this one still sealed with wax.</p>
+                        
+                        <p style="margin-bottom: 15px; color: #00d4ff;">🧪 <strong>Healing Potion acquired!</strong></p>
+                        
+                        <p style="color: #00d4ff; font-style: italic;">"Fortune favors the prepared. Or the lucky."</p>
+                    </div>
+                    
+                    <div class="tech-line" style="width: 60%; margin: 30px 0;"></div>
+                </div>
+                
+                <div class="bottom-bar">
+                    <button class="start-btn" onclick="showQueenAntEncounter()">
+                        CONTINUE<span class="cursor"></span>
+                    </button>
+                </div>
+            `;
+            
+            player.inventory.push('Healing Potion');
+        }
+        
+        function showQueenAntEncounter() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="content-inner">
+                    <div style="font-size: 16px; line-height: 1.8; color: rgba(0, 212, 255, 0.85); text-align: center; max-width: 500px;">
+                        <p style="margin-bottom: 15px;">The tunnel opens into a massive chamber. Bioluminescent fungus casts an eerie green glow across the walls.</p>
+                        
+                        <p style="margin-bottom: 15px;">In the center, atop a mound of bones and rusted armor, sits the <strong style="color: #ff0000; font-size: 18px;">Queen Ant</strong>.</p>
+                        
+                        <p style="margin-bottom: 15px;">She's the size of a horse, her abdomen pulsing with eggs. Her mandibles could crush a man's skull.</p>
+                        
+                        <p style="margin-bottom: 15px; color: #00d4ff; font-style: italic;">"The matriarch. She's killed dozens before you. Let's see if you're different."</p>
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(255, 0, 0, 0.2); border: 1px solid rgba(255, 0, 0, 0.5); border-radius: 5px;">
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 16px; color: #ff0000; margin-bottom: 10px;">⚔️ BOSS BATTLE</div>
+                            <div style="font-size: 14px; color: #ff4444;">Queen Ant HP: 200/200</div>
+                            <div style="font-size: 12px; color: rgba(255, 0, 0, 0.6); margin-top: 5px;">⚠️ WARNING: Extreme Danger</div>
+                        </div>
+                    </div>
+                    
+                    <div class="tech-line" style="width: 60%; margin: 30px 0;"></div>
+                </div>
+                
+                <div class="bottom-bar">
+                    <button class="start-btn" onclick="showQueenAntBattle()">
+                        FIGHT<span class="cursor"></span>
+                    </button>
+                </div>
+            `;
+        }
+        
+        function showQueenAntBattle() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="content-inner">
+                    <div style="font-size: 16px; line-height: 1.8; color: rgba(0, 212, 255, 0.85); text-align: center; max-width: 500px;">
+                        <p style="margin-bottom: 15px;">You charge forward, dagger raised. The Queen Ant doesn't even flinch.</p>
+                        
+                        <p style="margin-bottom: 15px;">Your blade strikes her carapace — <em>clang</em> — and bounces off, leaving barely a scratch.</p>
+                        
+                        <p style="margin-bottom: 15px; color: #ff4444;">She retaliates. A single swipe of her foreleg sends you flying across the chamber. <span style="color: #ff4444;">-40 HP</span></p>
+                        
+                        <p style="margin-bottom: 15px;">You drink your potions desperately, but the wounds keep coming. The Queen is relentless.</p>
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(255, 0, 0, 0.2); border: 1px solid rgba(255, 0, 0, 0.5); border-radius: 5px;">
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 16px; color: #ff0000; margin-bottom: 10px;">💀 YOU DIED</div>
+                            <div style="font-size: 14px; color: #ff4444;">The Queen Ant's mandibles close around you...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="tech-line" style="width: 60%; margin: 30px 0;"></div>
+                </div>
+                
+                <div class="bottom-bar">
+                    <button class="start-btn" onclick="showDeathPenalty()">
+                        ACCEPT FATE<span class="cursor"></span>
+                    </button>
+                </div>
+            `;
+            
+            player.hp = 0;
+        }
+        
+        function showDeathPenalty() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="content-inner">
+                    <div style="font-size: 16px; line-height: 1.8; color: rgba(0, 212, 255, 0.85); text-align: center; max-width: 500px;">
+                        <p style="margin-bottom: 15px;">Darkness takes you. But it is not the end.</p>
+                        
+                        <p style="margin-bottom: 15px;">You awaken back at the dungeon entrance, your body whole but weakened. The dungeon's magic has revived you — but at a cost.</p>
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.3); border-radius: 5px;">
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 14px; color: #ff4444; margin-bottom: 10px;">⚠️ DEATH PENALTY</div>
+                            <div style="font-size: 14px; color: #ff4444;">Level 2 → Level 1</div>
+                            <div style="font-size: 14px; color: rgba(255, 68, 68, 0.7);">All stat gains from Level 2 lost</div>
+                        </div>
+                        
+                        <p style="margin-bottom: 15px; color: #00d4ff; font-style: italic;">"The dungeon teaches harsh lessons, vessel. You were not ready."</p>
+                        
+                        <p style="margin-bottom: 15px;">The voice fades, leaving you alone with your failure.</p>
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 5px;">
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 16px; color: #00d4ff; margin-bottom: 10px;">🎮 DEMO COMPLETE</div>
+                            <div style="font-size: 14px; color: rgba(0, 212, 255, 0.7);">Thank you for playing SGRPG</div>
+                            <div style="font-size: 12px; color: rgba(0, 212, 255, 0.5); margin-top: 5px;">Full game coming soon...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="tech-line" style="width: 60%; margin: 30px 0;"></div>
+                </div>
+                
+                <div class="bottom-bar">
+                    <button class="start-btn" onclick="location.reload()">
+                        PLAY AGAIN<span class="cursor"></span>
+                    </button>
+                </div>
+            `;
+            
+            // Reset level
+            player.level = 1;
+            player.str = 10;
+            player.agi = 10;
+            player.int = 10;
+            player.per = 10;
+            player.vit = 10;
+            player.hp = 100;
+            player.statPoints = 0;
         }
     </script>
 </body>
