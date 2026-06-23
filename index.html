@@ -473,6 +473,57 @@
     </div>
     
     <script>
+        // Check if demo was completed
+        if (localStorage.getItem('sgrpg_demo_complete') === 'true') {
+            showComingSoon();
+        }
+        
+        function showComingSoon() {
+            const content = document.getElementById('content');
+            document.getElementById('header').style.display = 'none';
+            document.getElementById('status-bar').style.display = 'none';
+            
+            content.innerHTML = `
+                <div class="content-inner">
+                    <div style="text-align: center;">
+                        <div style="font-family: 'Orbitron', sans-serif; font-size: 32px; color: #00d4ff; letter-spacing: 6px; margin-bottom: 20px;">
+                            SGRPG
+                        </div>
+                        
+                        <div class="tech-line" style="width: 40%; margin: 0 auto 30px;"></div>
+                        
+                        <div style="font-size: 18px; color: rgba(0, 212, 255, 0.7); margin-bottom: 15px;">
+                            You have completed the demo.
+                        </div>
+                        
+                        <div style="font-size: 14px; color: rgba(0, 212, 255, 0.5); margin-bottom: 30px;">
+                            The full game is currently in development.
+                        </div>
+                        
+                        <div style="font-size: 16px; color: #00d4ff; font-style: italic; margin-bottom: 30px;">
+                            "The dungeon awaits your return, vessel."
+                        </div>
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 5px;">
+                            <div style="font-family: 'Orbitron', sans-serif; font-size: 14px; color: #00d4ff; margin-bottom: 10px;">🎮 FULL GAME COMING SOON</div>
+                            <div style="font-size: 12px; color: rgba(0, 212, 255, 0.5);">Stay tuned for updates...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bottom-bar">
+                    <button class="start-btn" onclick="resetDemo()">
+                        PLAY AGAIN<span class="cursor"></span>
+                    </button>
+                </div>
+            `;
+        }
+        
+        function resetDemo() {
+            localStorage.removeItem('sgrpg_demo_complete');
+            location.reload();
+        }
+        
         // Player Stats
         const player = {
             str: 10,
@@ -1203,6 +1254,9 @@
         }
         
         function showDeathPenalty() {
+            // Mark demo as complete
+            localStorage.setItem('sgrpg_demo_complete', 'true');
+            
             const content = document.getElementById('content');
             content.innerHTML = `
                 <div class="content-inner">
