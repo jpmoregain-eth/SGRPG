@@ -817,17 +817,48 @@
             `;
             
             setTimeout(() => {
-                content.innerHTML = `
-                    <div style="text-align: center; padding: 40px;">
-                        <div style="font-family: 'Orbitron', sans-serif; font-size: 20px; color: #00d4ff; margin-bottom: 20px;">
-                            DUNGEON FLOOR 1
-                        </div>
-                        <div style="color: rgba(0, 212, 255, 0.5); font-size: 14px;">
-                            (Next: Build the actual dungeon exploration screen)
+                showDungeonRoom();
+            }, 2500);
+        }
+        
+        function showDungeonRoom() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div style="width: 100%;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-family: 'Orbitron', sans-serif; font-size: 14px; color: rgba(0, 212, 255, 0.4); letter-spacing: 4px;">
+                            DUNGEON FLOOR 1 — ROOM 1
                         </div>
                     </div>
-                `;
-            }, 2500);
+                    
+                    <div class="story-text" style="font-size: 15px; line-height: 1.6; color: rgba(0, 212, 255, 0.8); text-align: center; margin-bottom: 30px;">
+                        <p style="margin-bottom: 12px;">The corridor stretches ahead, barely lit by flickering torches.</p>
+                        <p style="margin-bottom: 12px;">Water drips from the ceiling. Something skitters in the darkness.</p>
+                        <p style="margin-bottom: 12px; color: #00d4ff; font-style: italic;">"You're not alone down here, vessel."</p>
+                        <p>The voice again — soft, amused, watching.</p>
+                    </div>
+                    
+                    <div class="tech-line"></div>
+                    
+                    <button class="start-btn" onclick="exploreDungeon()">
+                        EXPLORE<span class="cursor"></span>
+                    </button>
+                </div>
+            `;
+        }
+        
+        function exploreDungeon() {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 20px; color: #00d4ff; margin-bottom: 20px;">
+                        EXPLORATION BEGINS
+                    </div>
+                    <div style="color: rgba(0, 212, 255, 0.5); font-size: 14px;">
+                        (Next: Build combat or event system)
+                    </div>
+                </div>
+            `;
         }
     </script>
 </body>
